@@ -1,0 +1,17 @@
+/* Add this CSS to your global styles or component styles */
+.custom-date-picker .rdrDefinedRangesWrapper {
+    display: none;
+  }
+  @media (min-width: 768px) { /* Adjust the breakpoint as needed */
+    .content2 {
+      display: flex;
+      flex-wrap: wrap;
+ 
+    }
+  
+    .content2 > div {
+      width: 345px;
+      margin-bottom: 20px; /* Adjust margin as needed */
+      margin-left: 15px;
+    }
+  }
