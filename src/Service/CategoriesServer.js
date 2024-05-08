@@ -26,7 +26,7 @@ const CategoriesServer = {
     } catch (error) {
       throw error.response.data.error; 
     }
-
+//COM
 
   },
   deleteCategory: async (categoryId,name) => {
