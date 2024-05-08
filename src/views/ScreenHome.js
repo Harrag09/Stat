@@ -232,8 +232,9 @@ function ScreenHome() {
           key={index}
           expanded={expandedPanel === index}
           onChange={handleAccordionChange(index)}
-          style={{ backgroundColor: store.Licence === "Disable" ? "rgba(255, 0, 0, 0.3)" : "rgba(0, 255, 0, 0.2)", marginTop: "10px" }}
-        >
+          style={{ backgroundColor: store.Licence === "Disable" ? "rgba(255, 0, 0, 0.3)" : "rgba(0, 255, 0, 0.2)", marginTop: "10px",width:"99%" }}
+      
+      >
           <AccordionSummary
             expandIcon={<ExpandMore />}
             aria-controls={`panel${index + 1}-content`}
@@ -251,9 +252,12 @@ function ScreenHome() {
                 <span style={{ marginLeft: "5px", color: store.Licence === "Enable" ? "green" : "red" }}>{store.Licence === "Enable" ? "Active" : "Inactive"}</span>
               </div>
             </div>
-            <div style={{ marginBottom: "5px" }}>Login: {store.Login}</div>
-            <div style={{ marginBottom: "5px" }}>Mot de passe: {store.Password}</div>
+            
             <div style={{ marginBottom: "5px" }}>ID CRM: {store.idCRM}</div>
+            <div style={{ marginBottom: "5px" }}>Login: {store.Login}</div>
+            {store.Email && <div style={{ marginBottom: "5px" }}>Email: {store.Email}</div>}
+            <div style={{ marginBottom: "5px" }}>Mot de passe: {store.Password}</div> 
+            {store.Tel && <div style={{ marginBottom: "5px" }}>Tel: {store.Tel}</div>}
             <div style={{ marginBottom: "5px" }}>Dernière Commande: {store.LastCommand}</div>
           </AccordionDetails>
           <AccordionActions>

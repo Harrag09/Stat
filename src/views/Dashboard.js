@@ -8,11 +8,12 @@ import { Checkbox } from "@mui/material";
 import NotificationAlert from "react-notification-alert";
 import UserService from "Service/UserService";
 import Form from "./Comp/Form";
+import ReactLoading from 'react-loading';
 function Dashboard() {
 
   const location = useLocation();
   const { _id, idCRM } = location.state || {};
-
+  const [loading, setLoading] = useState(false);
   const notificationAlert = React.useRef(null)
   // State to hold selected date range
   const [selectedDateRange, setSelectedDateRange] = useState(null);
@@ -29,21 +30,30 @@ function Dashboard() {
   const GetStatFromTableReel = async (a, b, c) => {
     try {
       setStoresData({})
+      setLoading(true);
       const data = await UserService.GetStatFromTableReel(a, b, c);
+      setLoading(false);
       showNotification(data.msg, data.data !== null ? 'success' : 'danger');
 
       setStoresData(data.data)
     } catch (error) {
+      setLoading(false);
+
       console.error(error);
     }
   };
   const GetStatFromTableStats = async (a, b, c) => {
     try {
       setStoresData({})
+      setLoading(true);
       const data = await UserService.GetStatFromTableStats(a, b, c);
+      setLoading(false);
+
       showNotification(data.msg, data.data !== null ? 'success' : 'danger');
       setStoresData(data.data);
     } catch (error) {
+      setLoading(false);
+
       console.error(error);
     }
   };
@@ -121,8 +131,14 @@ function Dashboard() {
         </div>
       </div>
       {/* storesData &&storesData.length!=0 */}
+      {loading ? (
+                     <div style={{ display: "flex", justifyContent: "center", marginTop: "250px" }}>
+                     <ReactLoading type={'spin'} color={'#000'} height={50} width={50} />
+                   </div>
+                    ) : 
+     <div>
       {storesData &&
-        <div>
+        <div >
           {/* Vue globale C.A */}
           <div style={{ marginTop: "50px" }}>
             <h5> Vue globale C.A</h5> <hr></hr>
@@ -179,7 +195,10 @@ function Dashboard() {
         </div>
 
       }
+</div>
 
+
+    }
 
 
 
