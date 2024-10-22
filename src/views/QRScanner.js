@@ -41,9 +41,9 @@ const QRScanner = () => {
                           setScanResult(result);
                           if (result && result.codeResult) {
                               setCode(result.codeResult.code);
-                              console.log("Barcode detected:", result.codeResult.code);
+                           //   console.log("Barcode detected:", result.codeResult.code);
                           } else {
-                              console.log("No barcode detected");
+                           //   console.log("No barcode detected");
                           }
                       }
                   );

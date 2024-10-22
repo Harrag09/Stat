@@ -30,9 +30,10 @@ function Navbar() {
          <h4   style={{marginLeft:"20px",marginTop:"25px",fontSize:"20px"}} > Makseb Solution</h4></div>
         
         <nav ref={navRef}>
-          <a href="/#" onClick={() => handleTabChange("aboutUs")}>About Us</a>
-          <a href="/#" onClick={() => handleTabChange("contactScreen")}>Contact</a>
+          {/* <a href="/#" onClick={() => handleTabChange("aboutUs")}>About Us</a> */}
           <a href="/#" onClick={() => handleTabChange("login")}>Login</a>
+          <a href="/#" onClick={() => handleTabChange("contactScreen")}>Contact</a>
+        
           <button className="nav-btn nav-close-btn" onClick={showNavbar}>
             <FaTimes />
           </button>
@@ -43,7 +44,7 @@ function Navbar() {
       </header>
       <div className="content-container" >
       {activeTab === "login" && <LoginScreen />}
-        {activeTab === "aboutUs" && <AboutUsScreen />}
+        {/* {activeTab === "aboutUs" && <AboutUsScreen />} */}
         {activeTab === "contactScreen" && <ContactScreen />}
   
       </div>

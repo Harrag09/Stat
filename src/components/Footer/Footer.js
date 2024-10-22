@@ -14,9 +14,8 @@ function Footer(props) {
             <hr/>
             <div >
              {1900 + new Date().getYear()}, 
-               By Harrag Oussama
-               <br/>
-               Email : harragoussama10@gmail.com
+               By Makseb Solution
+               
             </div>
           </div>
         </Row>

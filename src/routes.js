@@ -5,12 +5,13 @@ import Logout from "views/Logout";
 import Cookies from "js-cookie";
 import { jwtDecode } from 'jwt-decode';
 import { useState } from "react";
+import Profil from "views/Profil";
 const token = Cookies.get("access_token");
 const decoded = token ? jwtDecode(token) : "";
  const nm = Cookies.get("Name");
 const Name = nm ? nm : "Dashbord";
-
-
+const Setting = Cookies.get("Setting");
+console.log()
 
 
 var routes = [
@@ -42,7 +43,29 @@ if (decoded.Role=== "admin") {
   });
 
 }
-if (decoded.Role=== "store") {
+if (decoded.Role=== "store" && (Setting=== "true" )) {
+  routes.push(
+    {
+      path: `/${Name}`,
+      name: "Statistique",
+      icon: "nc-icon nc-bank",
+      component: <Dashboard />,
+      layout: "/admin",
+    }, {
+      path: `/Profil`,
+      name: "settings",
+      icon: "nc-icon nc-settings-gear-65",
+      component: <Profil />,
+      layout: "/admin",
+    },
+    {
+    path: "/logout",
+    name: "Déconnecter",
+    icon: "nc-icon nc-button-power",
+    component: <Logout/>,
+    layout: "/admin",
+  });
+}else if (decoded.Role=== "store"&& (Setting=== "false" )){
   routes.push(
     {
       path: `/${Name}`,

@@ -59,7 +59,7 @@ const ContactScreen = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission, e.g., send data to backend
-        console.log('Form submitted:', { email, mobile, message });
+       // console.log('Form submitted:', { email, mobile, message });
         // Reset form fields
         setEmail('');
         setMobile('');

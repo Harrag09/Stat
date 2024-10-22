@@ -33,7 +33,27 @@ const UserService = {
     } catch (error) {
       throw error.response.data.error;
     }
+  },
+  GetBaseDeDonne: async (idCRM) => {
+    try {
+    
+const response = await axios.get(`${Url}/GetBaseName/${idCRM}`);
+      return response.data;
+    } catch (error) {
+      throw error.response.data.error;
+    }
+  },
+  UpdateBaseDeDonne: async (idCRM,action) => {
+    try {
+      console.log(idCRM,action)
+      const response = await axios.get(`${Url}/UpdateBaseDeDonne/${idCRM}/${action}`);
+
+      return response.data;
+    } catch (error) {
+      throw error.response.data.error;
+    }
   }
+  
 };
 
 export default UserService;

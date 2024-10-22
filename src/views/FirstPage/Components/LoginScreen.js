@@ -68,6 +68,9 @@ const LoginScreen = () => {
                     Cookies.set('isLoggedIn', 'isLoggedIn',{ expires: 7 });
                     Cookies.set('idCRM', response.data.idCRM,{ expires: 7 });
                     Cookies.set('Name', response.data.Nom,{ expires: 7 });
+                    console.log(response);
+                    Cookies.set('Setting', response.data.Setting,{ expires: 7 });
+                     
                     window.location.reload();
 
                  

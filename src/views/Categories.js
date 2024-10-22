@@ -60,7 +60,7 @@ const closeDeleteConfirmationModal = () => {
         const reader = new FileReader();
         reader.onload = () => {
             const base64String = reader.result.split(',')[1];
-            console.log(base64String);
+       //     console.log(base64String);
             setNewCategory({ ...newCategory, file: base64String });
         };
         reader.readAsDataURL(file);
@@ -72,7 +72,7 @@ const closeDeleteConfirmationModal = () => {
             else if (newCategory.file === '') { showNotification('You need to add photo !', 'dark'); }
             else {
                 const Cat = await CategoriesServer.addCategory(newCategory);
-              console.log(".....",Cat);
+//console.log(".....",Cat);
                  categoriesData.push(Cat);
              
                 closeModal();
@@ -89,7 +89,7 @@ const closeDeleteConfirmationModal = () => {
     };
 
     const DeleteCategory = async () => {
-        console.log(selectedCat, selectedCat._id)
+    //    console.log(selectedCat, selectedCat._id)
         const deleteCats = await CategoriesServer.deleteCategory(selectedCat._id,selectedCat.name);
         if (deleteCats) {
             closeModal2();
@@ -106,7 +106,7 @@ const closeDeleteConfirmationModal = () => {
     };
     
     const ModifierCategory = async () => {
-        console.log(selectedCat, selectedCat._id)
+     //   console.log(selectedCat, selectedCat._id)
         // const deleteCats = await CategoriesServer.deleteCategory(selectedCat._id,selectedCat.name);
         // if (deleteCats) {
         //     closeModal2();
@@ -151,7 +151,7 @@ const closeDeleteConfirmationModal = () => {
             try {
                 const res = await CategoriesServer.getAllCategory();
                 setcategoriesData(res);
-                console.log(res)
+       //         console.log(res)
             } catch (err) {
                 console.error(err);
             }

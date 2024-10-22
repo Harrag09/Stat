@@ -9,16 +9,34 @@ import "perfect-scrollbar/css/perfect-scrollbar.css";
 import AdminLayout from "layouts/Admin.js";
 import FirstPage from "views/FirstPage/FirstPage";
 import { jwtDecode } from "jwt-decode";
+import socketIOClient, { io } from 'socket.io-client';
+import { Url } from "Service/CategoriesServer";
+import Profil from "views/Profil";
+export const socket = socketIOClient(Url);
 
 
 
 const App = () => {
+
   // State to track the authentication status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [decoded, setdecoded] = useState("");
   const [idStore, setIdidStore] = useState("");
   const [idcrm, setidcrm] = useState("");
-    const [Name, setName] = useState("Dashbord");
+  const [Name, setName] = useState("Dashbord");
+
+useEffect(() => {
+
+  socket.on('connect', () => {
+    console.log('Connected to server',socket);
+
+    
+   
+  });
+
+}, [socket]);
+
+
   useEffect(() => {
     // Check if the login cookie exists
     const loginCookie = Cookies.get("isLoggedIn");
@@ -28,7 +46,7 @@ const App = () => {
       const nm = Cookies.get("Name");
       const crm = Cookies.get("idCRM");
       setName(nm);
-      setidcrm(idcrm);
+      setidcrm(crm);
       const decoded = jwtDecode(accessToken);
       setdecoded(decoded.Role);
       setIdidStore(decoded.id)
@@ -41,7 +59,8 @@ const App = () => {
 
   const getDefaultRoute = (decoded) => {
     if (decoded === "store") {
-      return   <Route path="/" element={<Navigate to={`/admin/${Name}`} replace state={{ _id: idStore,idCRM:idcrm }} />} />
+     // console.log("2222",idcrm);
+         return   <Route path="/" element={<Navigate to={`/admin/${Name}`} replace state={{ _id: idStore,idCRM:idcrm }} />} />
 
     } else if (decoded === "admin") {
       return   <Route path="/" element={<Navigate to="/admin/users" replace />} />
@@ -55,6 +74,7 @@ const App = () => {
           <Routes>
             <Route path="/admin/*" element={<AdminLayout />} />
             {getDefaultRoute(decoded)}
+            {/* <Route path="/" element={<Navigate to={`/admin/profil`} replace state={{ _id: idStore,idCRM:idcrm }} />} /> */}
           </Routes>
         </BrowserRouter>
       ) : (

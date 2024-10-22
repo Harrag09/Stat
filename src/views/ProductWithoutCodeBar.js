@@ -81,7 +81,7 @@ const ProductWithoutCodeBar = () => {
                                         showNotification("Error adding barcode: " + error, "error");
                                     }
                                 } else {
-                                    console.log("No barcode detected");
+                             //       console.log("No barcode detected");
                                 }
                             }
                         );

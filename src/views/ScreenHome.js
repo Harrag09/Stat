@@ -1,21 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Button as MuiButton, Accordion, AccordionActions, AccordionDetails, AccordionSummary, TextField } from '@mui/material';
-import { ExpandMore } from '@material-ui/icons';
+import { ExpandMore, GroupAddOutlined } from '@material-ui/icons';
 import { Add } from '@material-ui/icons';
 import AdminService from 'Service/AdminService';
 import { Button as RsButton, Modal, ModalHeader, ModalBody, ModalFooter, Input } from 'reactstrap';
 import NotificationAlert from "react-notification-alert";
 import { useNavigate } from 'react-router-dom';
 import ReactLoading from 'react-loading';
+import styled from 'styled-components';
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
+
+//import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+
+
 function ScreenHome() {
   const notificationAlert = React.useRef(null);
   const [storesData, setStoresData] = useState([]);
+  const [filteredStores, setfilteredStores] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchQueryCRM, setSearchQueryCRM] = useState('');
   const [expandedPanel, setExpandedPanel] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
   const [showModalAjout, setShowModalAjout] = useState(false);
   const [showModalUpdate, setShowModalUpdate] = useState(false);
   const [showModalLicence, setShowModalLicence] = useState(false);
+  const [showModalSupprimer, setShowModalSupprimer] = useState(false);
+  const [selectedBase, setSelectedBase] = useState(""); // State to store selected base
+
   const [showModalConfirmationView, setShowModalConfirmationView] = useState(false);
   const [newRest, setNewRes] = useState({ Nom: '', Login: '', idCRM: '', Password: '', Email: '', Tel: '' });
   const [updRest, setUpdRest] = useState([]);
@@ -25,32 +36,46 @@ function ScreenHome() {
 
 
 
+
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNewRes({ ...newRest, [name]: value });
   };
-  
+
+  // const handleInputChangeUpdate = (event) => {
+  //   const { name, value } = event.target;
+  //   setUpdRest({ ...updRest, [name]: value });
+  //   setSelectedBase(value);
+  // };
   const handleInputChangeUpdate = (event) => {
     const { name, value } = event.target;
+    setSelectedBase(value); // Update the selectedBase state
     setUpdRest({ ...updRest, [name]: value });
   };
   const closeModalAjout = () => {
     setShowModalAjout(false);
     setSelectedStore(null)
+    setNewRes({ Nom: '', Login: '', idCRM: '', Password: '', Email: '', Tel: '' })
   };
+
   const openModalAjout = () => {
     setShowModalAjout(true);
+
+
   };
   const closeModalUpdate = () => {
     setUpdRest(selectedStore);
+
     setSelectedStore(null)
     setShowModalUpdate(false);
     setUpdRest([])
   };
   const openModalUpdate = (store) => {
+    setSelectedBase(store.Setting)
     setSelectedStore(store)
     setShowModalUpdate(true);
-  
+
   };
   const closeModalLicence = () => {
     setSelectedStore(null)
@@ -60,18 +85,32 @@ function ScreenHome() {
     setSelectedStore(store)
     setShowModalLicence(true);
   };
+
+  const closeModalSupprimer = () => {
+    setSelectedStore(null)
+    setShowModalSupprimer(false);
+  };
+  const openModalSupprimer = (store) => {
+    setSelectedStore(store)
+    setShowModalSupprimer(true);
+  };
   const closeModalConfirmationView = () => {
     setSelectedStore(null)
     setShowModalConfirmationView(false);
   };
-  const openModalConfirmationView= (store) => {
-     setSelectedStore(store)
+  const openModalConfirmationView = (store) => {
+    setSelectedStore(store)
     setShowModalConfirmationView(true);
   };
 
   const UpdateRestaurant = async () => {
-  
-    if (updRest.Nom !== undefined&&updRest.Login !== undefined&&updRest.idCRM !== undefined&&updRest.Email !== undefined&&updRest.Tel !== undefined ) {
+
+    if ((updRest.Setting === undefined) && (updRest.Nom === undefined) && (updRest.Login === undefined) && (updRest.idCRM === undefined) && (updRest.Email === undefined) && (updRest.Password === undefined) && (updRest.Tel === undefined)) {
+      showNotification('Aucun changement détecté !', 'danger');
+      console.log("No changes detected.");
+      setUpdRest([]);
+      setSelectedStore(null);
+    } else {
       try {
         const _id = selectedStore._id;
         const Nom = updRest.Nom !== undefined ? updRest.Nom : selectedStore.Nom;
@@ -80,17 +119,25 @@ function ScreenHome() {
         const idCRM = updRest.idCRM !== undefined ? updRest.idCRM : selectedStore.idCRM;
         const Email = updRest.Email !== undefined ? updRest.Email : selectedStore.Email;
         const Tel = updRest.Tel !== undefined ? updRest.Tel : selectedStore.Tel;
-      
-        const response = await AdminService.UpdateStore(_id,Nom,Login,Password,idCRM,Email,Tel);
+        const Setting = updRest.Setting !== undefined ? updRest.Setting : selectedStore.Setting;
+
+        //  console.log(selectedStore);
+        const response = await AdminService.UpdateStore(_id, Nom, Login, Password, idCRM, Email, Tel, Setting);
         const tt = {
-          _id :_id,
-          Nom:Nom,
-          Login:Login,
-          Password:Password,
-          idCRM:idCRM,
-          Email:Email,
-          Tel:Tel
+          _id: _id,
+          Nom: Nom,
+          Login: Login,
+          Password: Password,
+          idCRM: idCRM,
+          Email: Email,
+          Tel: Tel,
+          Licence: selectedStore.Licence,
+          Status: selectedStore.Status,
+          LastCommand: selectedStore.LastCommand,
+          Address: selectedStore.Address,
+          Setting: Setting
         }
+        //   console.log(selectedStore);
         setStoresData(prevData => prevData.map(store => store._id === tt._id ? tt : store));
         showNotification('Restaurant mis à jour avec succès !', 'success');
         setShowModalUpdate(false);
@@ -101,15 +148,10 @@ function ScreenHome() {
         setUpdRest([]);
         setSelectedStore(null);
       }
-    } else {
-      showNotification('Aucun changement détecté !', 'danger');
-      console.log("No changes detected.");
-      setUpdRest([]);
-      setSelectedStore(null);
     }
     setShowModalUpdate(false);
   };
-  
+
 
 
 
@@ -126,10 +168,19 @@ function ScreenHome() {
     else {
       try {
         const response = await AdminService.AjoutStores(newRest);
-        const newRestaurantData = response;
-        setStoresData(prevStoresData => [...prevStoresData, newRestaurantData.data]);
-        showNotification('Restaurant ajouté avec succès !', 'success');
-        setShowModalAjout(false);
+
+        if (response.msg === "User already exists.") {
+      
+          showNotification('Un restaurant avec ces informations existe déjà !', 'danger');
+
+        } else {
+          const newRestaurantData = response;
+          setStoresData(prevStoresData => [...prevStoresData, newRestaurantData.data]);
+          showNotification('Restaurant ajouté avec succès !', 'success');
+          setShowModalAjout(false);
+          closeModalAjout()
+        }
+        setSelectedStore(null);
       } catch (error) {
         console.error('Error adding new restaurant:', error);
         showNotification("Échec de l'ajout du restaurant. Veuillez réessayer ultérieurement.", 'danger');
@@ -165,13 +216,13 @@ function ScreenHome() {
     try {
       let newLicenceStatus;
       if (Licence === "Enable") {
-        selectedStore.Licence="Disable"
+        selectedStore.Licence = "Disable"
         newLicenceStatus = "Disable";
       } else if (Licence === "Disable") {
-        selectedStore.Licence="Enable"
+        selectedStore.Licence = "Enable"
         newLicenceStatus = "Enable";
       }
-  
+
       await AdminService.UpdateLicence(idCRM, newLicenceStatus);
       const successNotification = 'Licence mise à jour avec succès !';
       showNotification(successNotification, 'success');
@@ -186,11 +237,24 @@ function ScreenHome() {
   };
 
 
+  useEffect(() => {
 
+    setfilteredStores(storesData)
+  }, [storesData]);
+  useEffect(() => {
+    const filteredStores1 = storesData?.filter(store =>
+      store.Nom.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setfilteredStores(filteredStores1)
+  }, [searchQuery]);
 
-  const filteredStores = storesData?.filter(store =>
-    store.Nom.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const filteredStores1 = storesData?.filter(store =>
+      store.idCRM.toLowerCase().includes(searchQueryCRM.toLowerCase())
+    );
+    setfilteredStores(filteredStores1)
+  }, [searchQueryCRM]);
+
 
 
 
@@ -208,33 +272,74 @@ function ScreenHome() {
     notificationAlert.current.notificationAlert(options);
   };
 
-  
-  const handleNavigate= () => {
-  
-     navigate('/admin/Dashboard', { state: { _id: selectedStore._id,idCRM:selectedStore.idCRM  } });
-     setSelectedStore(null)
-     setShowModalConfirmationView(false);
- };
+
+  const handleNavigate = () => {
+
+    navigate('/admin/Dashboard', { state: { _id: selectedStore._id, idCRM: selectedStore.idCRM } });
+    setSelectedStore(null)
+    setShowModalConfirmationView(false);
+  };
+
+
+  const handleDeleteStore = async () => {
+    const { _id } = selectedStore;
+
+    try {
+
+      await AdminService.DeleteUsers(_id);
+      const successNotification = 'Store Deleted !';
+      showNotification(successNotification, 'success');
+      setStoresData(prevStoresData => prevStoresData.filter(item => item._id !== _id));
+      setSelectedStore(null);
+
+
+    } catch (error) {
+      console.error('Error updating license:', error.message); // Log detailed error message
+      const failureNotification = 'Failed to delete store . Please try again later.';
+      showNotification(failureNotification, 'danger'); // Display failure notification
+    }
+
+    closeModalSupprimer();
+  };
+
+
+
+
+
   return (
     <div className="content">
-      {!isLoading && <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-        <TextField
-          label="Search Store"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        /><Add style={{ width: "50px", height: "50px" }} onClick={openModalAjout} />
-      </div>
+      {!isLoading && <Container>
+        <FlexItem>
+          <TextField
+            label="Trouver par le nom"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: "300px" }}
+          />
+        </FlexItem>
+        <FlexItem >
+          <TextField
+            label="Trouver par l'IDCRM"
+            value={searchQueryCRM}
+            onChange={(e) => setSearchQueryCRM(e.target.value)}
+            style={{ width: "300px" }}
+          />
+        </FlexItem>
+        <FlexItem onClick={openModalAjout} style={{ paddingTop: "30px" }}>
+          <GroupAddOutlined style={{ width: "50px", height: "50px", paddingTop: "5px" }} /><h3 style={{ paddingTop: "5px" }}>Ajouter</h3>
+        </FlexItem>
+      </Container>
       }
 
 
-      {!isLoading && filteredStores.map((store, index) => (
+      {!isLoading && filteredStores?.map((store, index) => (
         <Accordion
           key={index}
           expanded={expandedPanel === index}
           onChange={handleAccordionChange(index)}
-          style={{ backgroundColor: store.Licence === "Disable" ? "rgba(255, 0, 0, 0.3)" : "rgba(0, 255, 0, 0.2)", marginTop: "10px",width:"99%" }}
-      
-      >
+          style={{ backgroundColor: store.Licence === "Disable" ? "rgba(255, 0, 0, 0.3)" : "rgba(0, 255, 0, 0.2)", marginTop: "10px", width: "99%" }}
+
+        >
           <AccordionSummary
             expandIcon={<ExpandMore />}
             aria-controls={`panel${index + 1}-content`}
@@ -252,15 +357,20 @@ function ScreenHome() {
                 <span style={{ marginLeft: "5px", color: store.Licence === "Enable" ? "green" : "red" }}>{store.Licence === "Enable" ? "Active" : "Inactive"}</span>
               </div>
             </div>
-            
+
             <div style={{ marginBottom: "5px" }}>ID CRM: {store.idCRM}</div>
             <div style={{ marginBottom: "5px" }}>Login: {store.Login}</div>
             {store.Email && <div style={{ marginBottom: "5px" }}>Email: {store.Email}</div>}
-            <div style={{ marginBottom: "5px" }}>Mot de passe: {store.Password}</div> 
+            <div style={{ marginBottom: "5px" }}>Mot de passe: {store.Password}</div>
             {store.Tel && <div style={{ marginBottom: "5px" }}>Tel: {store.Tel}</div>}
-            <div style={{ marginBottom: "5px" }}>Dernière Commande: {store.LastCommand}</div>
+            {((store.Setting === true) || (store.Setting === false)) && (
+              <div style={{ marginBottom: "5px" }}>
+                Setting: {store.Setting ? "autorisation de changer base" : "pas d'autorisation de changer base"}
+              </div>
+            )}            <div style={{ marginBottom: "5px" }}>{store.LastCommand && <div>Dernière Commande: {store.LastCommand}</div>}</div>
           </AccordionDetails>
           <AccordionActions>
+            <MuiButton style={{ color: "red" }} onClick={() => openModalSupprimer(store)}>Supprimer</MuiButton>
             <MuiButton onClick={() => openModalLicence(store)}>Licence</MuiButton>
             <MuiButton onClick={() => openModalUpdate(store)} >Modifier </MuiButton>
             <MuiButton style={{ color: "green" }} onClick={() => openModalConfirmationView(store)}>View</MuiButton>
@@ -274,17 +384,17 @@ function ScreenHome() {
       <Modal isOpen={showModalAjout} toggle={closeModalAjout}>
         <ModalHeader toggle={closeModalAjout}>Ajouter un nouveau restaurant.</ModalHeader>
         <ModalBody>
-          <label>Nom :</label>
+          <label><strong>Nom :</strong></label>
           <Input type="text" name="Nom" value={newRest.Nom} onChange={handleInputChange} />
-          <label>idCRM :</label>
+          <label><strong>idCRM :</strong></label>
           <Input type="text" name="idCRM" value={newRest.idCRM} onChange={handleInputChange} />
-          <label>Login :</label>
+          <label><strong>Login :</strong></label>
           <Input type="text" name="Login" value={newRest.Login} onChange={handleInputChange} />
-          <label>Password :</label>
+          <label><strong>Password  :</strong></label>
           <Input type="text" name="Password" value={newRest.Password} onChange={handleInputChange} />
-          <label>Email:</label>
+          <label><strong>Email :</strong></label>
           <Input type="text" name="Email" value={newRest.Email} onChange={handleInputChange} />
-          <label>Tel:</label>
+          <label><strong>Tel :</strong></label>
           <Input type="text" name="Tel" value={newRest.Tel} onChange={handleInputChange} />
 
 
@@ -332,7 +442,7 @@ function ScreenHome() {
           <label>Nom :</label>
           <Input type="text" name="Nom" placeholder={selectedStore?.Nom || ''} value={updRest?.Nom || ''} onChange={handleInputChangeUpdate} />
           <label>idCRM :</label>
-          <Input type="text" name="idCRM" placeholder={selectedStore?.idCRM || ''} value={updRest?.idCRM || ''} readOnly  />
+          <Input type="text" name="idCRM" placeholder={selectedStore?.idCRM || ''} value={updRest?.idCRM || ''} readOnly />
           <label>Login :</label>
           <Input type="text" name="Login" placeholder={selectedStore?.Login || ''} value={updRest?.Login || ''} onChange={handleInputChangeUpdate} />
           <label>Password :</label>
@@ -341,6 +451,27 @@ function ScreenHome() {
           <Input type="text" name="Email" placeholder={selectedStore?.Email || ''} value={updRest?.Email || ''} onChange={handleInputChangeUpdate} />
           <label>Tel:</label>
           <Input type="text" name="Tel" placeholder={selectedStore?.Tel || ''} value={updRest?.Tel || ''} onChange={handleInputChangeUpdate} />
+          <FormControl style={{ marginTop: "7px" }}>
+            <FormLabel id="demo-radio-buttons-group-label"><strong>Setting :</strong>Si le Setting est activé, cela peut modifier la base de données</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              name="Setting"
+              value={selectedBase} // Ensure value is controlled
+              onChange={handleInputChangeUpdate}
+            >
+              <FormControlLabel
+                value="true"
+                control={<Radio />}
+                label="Active"
+              />
+              <FormControlLabel
+                value="false"
+                control={<Radio />}
+                label="Desactiver"
+              />
+            </RadioGroup>
+          </FormControl>
+
         </ModalBody>
         <ModalFooter>
           <MuiButton color="primary" onClick={UpdateRestaurant}>Update</MuiButton>
@@ -352,14 +483,37 @@ function ScreenHome() {
       <Modal isOpen={showModalConfirmationView} toggle={closeModalConfirmationView}>
         <ModalHeader toggle={closeModalConfirmationView}>Voir les statistiques de  {selectedStore?.Nom}.</ModalHeader>
         <ModalBody>
-        Voulez-vous continuer ?
+          Voulez-vous continuer ?
         </ModalBody>
         <ModalFooter>
           <MuiButton color="primary" onClick={handleNavigate}>Continuer </MuiButton>
           <MuiButton color="secondary" onClick={closeModalConfirmationView}>Annuler</MuiButton>
         </ModalFooter>
       </Modal>
-      
+
+
+      {/*  Licence Model */}
+
+      <Modal isOpen={showModalSupprimer} toggle={closeModalSupprimer}>
+        <ModalHeader toggle={closeModalSupprimer}>
+          Supprimer  {selectedStore?.Nom}
+        </ModalHeader>
+        <ModalBody>
+          {selectedStore && <div>Es-tu sûr de vouloir supprimer {selectedStore?.Nom} </div>}
+        </ModalBody>
+        <ModalFooter>
+          <RsButton
+            style={{ backgroundColor: selectedStore?.Licence === "Enable" ? "rgb(255, 46, 0)" : "rgb(60, 179, 113)" }}
+            onClick={handleDeleteStore}>{selectedStore && <div>Supprimer</div>}</RsButton>
+          <RsButton color="secondary" onClick={closeModalSupprimer}>Annuler</RsButton>
+        </ModalFooter>
+      </Modal>
+
+
+
+
+
+
       <NotificationAlert ref={notificationAlert} />
       {isLoading && <div style={{ display: "flex", justifyContent: "center", marginTop: "250px" }}>
         <ReactLoading type={'spin'} color={'#000'} height={50} width={50} />
@@ -368,4 +522,22 @@ function ScreenHome() {
   );
 }
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px; /* Adjust as needed */
+   
+  }
+`;
+
+const FlexItem = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top:7px
+  `;
 export default ScreenHome;

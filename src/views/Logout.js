@@ -8,6 +8,7 @@ function Logout() {
         Cookies.remove('isLoggedIn');
         Cookies.remove('Name');
         Cookies.remove('idCRM');
+        Cookies.remove('idCRMClient');
         nnavigate("/")
         window.location.reload(); 
         console.log("User logged out");
